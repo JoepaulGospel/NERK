@@ -6,12 +6,12 @@
 <title>NERK | Finance Intelligence</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<!-- FIREBASE LEGACY SCRIPTS FOR SINGLE FILE SUPPORT -->
+<!-- FIREBASE COMPAT SCRIPTS (REQUIRED FOR SINGLE HTML FILE) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f4f7; color: #1c1c1e; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f4f7; color: #1c1c1e; overflow-x: hidden; }
 .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.8); }
 .traffic-dot { transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
 .light-active-green { background: #22c55e; box-shadow: 0 0 25px #22c55e; }
@@ -32,14 +32,13 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
 <i data-lucide="settings-2" class="w-5 h-5"></i>
 </button>
 </header>
-<!-- MAIN TRAFFIC LIGHT PILLAR -->
+<!-- TRAFFIC LIGHT DASHBOARD -->
 <div class="glass rounded-[3rem] p-10 shadow-2xl shadow-black/5 flex justify-between items-center relative overflow-hidden">
 <div class="space-y-1">
 <p id="status-text" class="text-[10px] font-black uppercase tracking-widest text-green-600">Safe Zone</p>
 <p class="text-[11px] font-medium text-zinc-400">Remaining Capital</p>
 <h2 id="display-balance" class="text-4xl font-black tracking-tighter">₦0</h2>
 </div>
-<!-- THE LIGHTS -->
 <div class="flex flex-col gap-3 bg-zinc-200/50 p-2 rounded-full border border-black/5">
 <div id="light-red" class="traffic-dot w-5 h-5 rounded-full bg-zinc-300"></div>
 <div id="light-yellow" class="traffic-dot w-5 h-5 rounded-full bg-zinc-300"></div>
@@ -61,26 +60,29 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-app
 <div class="space-y-4">
 <h3 class="text-xs font-black uppercase tracking-widest text-zinc-400 ml-2">Recent Logs</h3>
 <div id="expense-list" class="space-y-3">
-<!-- Expenses will load here -->
+<div class="text-center py-10 text-zinc-400 text-xs italic">Loading your ledger...</div>
 </div>
 </div>
 <!-- FLOATING INPUT -->
 <div class="fixed bottom-8 left-0 w-full px-6">
 <div class="max-w-md mx-auto glass p-3 rounded-[2.5rem] shadow-2xl flex items-center gap-3 border-white">
-<div class="bg-zinc-100 w-12 h-12 rounded-full flex items-center justify-center text-zinc-400 ml-1">₦</div>
-<input id="amount-input" type="number" placeholder="0.00" class="flex-1 bg-transparent py-3 font-bold text-xl outline-none" />
-<button onclick="addExpense()" class="bg-zinc-900 hover:bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90">
+<div class="bg-zinc-100 w-12 h-12 rounded-full flex items-center justify-center text-zinc-400 ml-1 font-bold">₦</div>
+<input id="amount-input" type="number" placeholder="Enter amount..." class="flex-1 bg-transparent py-3 font-bold text-xl outline-none" />
+<button onclick="addExpense()" id="add-btn" class="bg-zinc-900 hover:bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90">
 <i data-lucide="plus" class="w-7 h-7"></i>
 </button>
 </div>
 </div>
 </div>
 <script>
-// --- FIREBASE CONFIG (Replace with your keys) ---
+// --- YOUR INTEGRATED FIREBASE KEYS ---
 const firebaseConfig = {
-apiKey: "YOUR_API_KEY",
-projectId: "YOUR_PROJECT_ID",
-appId: "YOUR_APP_ID"
+apiKey: "AIzaSyA0_1qvuG5TGiS2HM8E-lXOmL1ri0T2658",
+authDomain: "nerk-4ca89.firebaseapp.com",
+projectId: "nerk-4ca89",
+storageBucket: "nerk-4ca89.firebasestorage.app",
+messagingSenderId: "913086486476",
+appId: "1:913086486476:web:dbf3424285fdfa0ac1ef69"
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -105,7 +107,7 @@ calculateTraffic();
 }
 }
 function fetchExpenses() {
-db.collection("expenses").orderBy("createdAt", "desc").limit(10).onSnapshot((snapshot) => {
+db.collection("expenses").orderBy("createdAt", "desc").limit(15).onSnapshot((snapshot) => {
 const list = document.getElementById('expense-list');
 list.innerHTML = '';
 totalSpent = 0;
@@ -113,20 +115,26 @@ snapshot.forEach((doc) => {
 const data = doc.data();
 totalSpent += Number(data.amount);
 const item = document.createElement('div');
-item.className = "glass p-4 rounded-3xl flex justify-between items-center animate-in fade-in slide-in-from-bottom-2";
+item.className = "glass p-5 rounded-[2rem] flex justify-between items-center transition-all hover:translate-x-1";
 item.innerHTML = `
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-zinc-100 rounded-2xl flex items-center justify-center text-zinc-400">
-<i data-lucide="shopping-bag" class="w-4 h-4"></i>
+<div class="flex items-center gap-4">
+<div class="w-11 h-11 bg-zinc-100 rounded-2xl flex items-center justify-center text-zinc-400">
+<i data-lucide="arrow-up-right" class="w-5 h-5"></i>
 </div>
-<span class="font-bold text-sm">Outflow</span>
+<div>
+<p class="font-bold text-sm">Capital Outflow</p>
+<p class="text-[10px] text-zinc-400 uppercase font-black tracking-widest">Confirmed</p>
 </div>
-<span class="font-black text-sm">-₦${data.amount.toLocaleString()}</span>
+</div>
+<span class="font-black text-sm text-zinc-900">-₦${data.amount.toLocaleString()}</span>
 `;
 list.appendChild(item);
 });
 lucide.createIcons();
 calculateTraffic();
+}, (error) => {
+console.error("Firebase Error:", error);
+document.getElementById('expense-list').innerHTML = `<p class="text-red-500 text-xs text-center">Connection Error. Check Firebase Rules.</p>`;
 });
 }
 function calculateTraffic() {
@@ -158,8 +166,11 @@ statusLabel.className = "text-[10px] font-black uppercase tracking-widest text-r
 }
 async function addExpense() {
 const input = document.getElementById('amount-input');
+const btn = document.getElementById('add-btn');
 const amount = Number(input.value);
 if (!amount || amount <= 0) return;
+btn.disabled = true;
+btn.innerHTML = `<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`;
 try {
 await db.collection("expenses").add({
 amount: amount,
@@ -167,7 +178,11 @@ createdAt: firebase.firestore.FieldValue.serverTimestamp()
 });
 input.value = '';
 } catch (e) {
-alert("Database Error: " + e.message);
+alert("Database Error. Ensure 'Test Mode' is on in Firestore.");
+} finally {
+btn.disabled = false;
+btn.innerHTML = `<i data-lucide="plus" class="w-7 h-7"></i>`;
+lucide.createIcons();
 }
 }
 init();
