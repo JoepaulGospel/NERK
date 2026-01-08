@@ -1,81 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="main-html" class="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NERK | Finance Intelligence</title>
+<title>NERK | Pro Intelligence</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<!-- FIREBASE COMPAT SCRIPTS (REQUIRED FOR SINGLE HTML FILE) -->
+<!-- FIREBASE COMPAT SDKS -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+darkMode: 'class',
+theme: { extend: { colors: { darkbg: '#09090b', darkcard: '#18181b' } } }
+}
+</script>
 <style>
-body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f4f7; color: #1c1c1e; overflow-x: hidden; }
-.glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.8); }
+body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s ease; }
+.glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); }
+.dark .glass { background: rgba(24, 24, 27, 0.6); border: 1px solid rgba(255,255,255,0.1); }
 .traffic-dot { transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
 .light-active-green { background: #22c55e; box-shadow: 0 0 25px #22c55e; }
 .light-active-yellow { background: #eab308; box-shadow: 0 0 25px #eab308; }
 .light-active-red { background: #ef4444; box-shadow: 0 0 25px #ef4444; }
-input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.hide { display: none !important; }
 </style>
 </head>
-<body class="p-6 pb-32">
-<div class="max-w-md mx-auto space-y-8">
-<!-- HEADER -->
-<header class="flex justify-between items-center pt-8">
-<div>
-<h1 class="text-3xl font-extrabold tracking-tighter">NERK</h1>
-<p class="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Budget Intelligence</p>
+<body class="bg-[#f4f4f7] dark:bg-darkbg text-zinc-900 dark:text-zinc-100 min-h-screen">
+<!-- LOGIN / AUTH SCREEN -->
+<section id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
+<div class="w-full max-w-md space-y-8 text-center">
+<div class="space-y-2">
+<h1 class="text-5xl font-black tracking-tighter">NERK</h1>
+<p class="text-xs font-bold uppercase tracking-[0.4em] text-zinc-400">Financial Intelligence</p>
 </div>
-<button onclick="setNewBudget()" class="w-10 h-10 glass rounded-2xl flex items-center justify-center text-zinc-500 hover:text-indigo-600 transition-colors">
-<i data-lucide="settings-2" class="w-5 h-5"></i>
-</button>
+<div class="glass p-8 rounded-[3rem] space-y-4 shadow-2xl">
+<input id="auth-email" type="email" placeholder="Email Address" class="w-full p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800 outline-none font-bold">
+<input id="auth-pass" type="password" placeholder="Password" class="w-full p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800 outline-none font-bold">
+<button onclick="handleAuth('login')" class="w-full bg-zinc-900 dark:bg-white dark:text-black text-white p-4 rounded-2xl font-black shadow-xl">LOG IN</button>
+<button onclick="handleAuth('signup')" class="text-xs font-bold text-zinc-400 hover:text-indigo-500 uppercase tracking-widest">Create New Account</button>
+</div>
+</div>
+</section>
+<!-- MAIN DASHBOARD -->
+<section id="dashboard" class="hide p-6 pb-40 max-w-md mx-auto space-y-6">
+<!-- TOP NAV -->
+<header class="flex justify-between items-center pt-6">
+<div class="flex items-center gap-3">
+<div onclick="toggleDarkMode()" class="w-10 h-10 glass rounded-full flex items-center justify-center cursor-pointer">
+<i data-lucide="moon" class="w-4 h-4 dark:hide"></i>
+<i data-lucide="sun" class="w-4 h-4 hide dark:block text-yellow-400"></i>
+</div>
+<select id="currency-select" onchange="changeCurrency()" class="bg-transparent font-black text-sm outline-none">
+<option value="₦">NGN (₦)</option>
+<option value="$">USD ($)</option>
+<option value="£">GBP (£)</option>
+<option value="€">EUR (€)</option>
+</select>
+</div>
+<button onclick="firebase.auth().signOut()" class="text-[10px] font-black uppercase text-red-500 tracking-widest">Logout</button>
 </header>
-<!-- TRAFFIC LIGHT DASHBOARD -->
-<div class="glass rounded-[3rem] p-10 shadow-2xl shadow-black/5 flex justify-between items-center relative overflow-hidden">
+<!-- CALENDAR SELECTOR -->
+<div class="flex gap-2 overflow-x-auto py-2 no-scrollbar">
+<input type="month" id="month-filter" onchange="fetchExpenses()" class="glass px-4 py-2 rounded-xl text-xs font-bold outline-none">
+</div>
+<!-- TRAFFIC PILLAR -->
+<div class="glass rounded-[3rem] p-8 shadow-2xl flex justify-between items-center relative overflow-hidden border-indigo-500/10">
 <div class="space-y-1">
-<p id="status-text" class="text-[10px] font-black uppercase tracking-widest text-green-600">Safe Zone</p>
-<p class="text-[11px] font-medium text-zinc-400">Remaining Capital</p>
-<h2 id="display-balance" class="text-4xl font-black tracking-tighter">₦0</h2>
+<div class="flex items-center gap-2">
+<p id="status-text" class="text-[10px] font-black uppercase tracking-widest text-green-500">Safe Zone</p>
+<i data-lucide="edit-3" onclick="setNewBudget()" class="w-3 h-3 text-zinc-400 cursor-pointer hover:text-indigo-500"></i>
 </div>
-<div class="flex flex-col gap-3 bg-zinc-200/50 p-2 rounded-full border border-black/5">
-<div id="light-red" class="traffic-dot w-5 h-5 rounded-full bg-zinc-300"></div>
-<div id="light-yellow" class="traffic-dot w-5 h-5 rounded-full bg-zinc-300"></div>
-<div id="light-green" class="traffic-dot w-5 h-5 rounded-full bg-zinc-300"></div>
+<p class="text-[11px] font-medium text-zinc-400">Available Balance</p>
+<h2 id="display-balance" class="text-4xl font-black tracking-tighter">0</h2>
+</div>
+<div class="flex flex-col gap-2.5 bg-zinc-200/50 dark:bg-zinc-800/50 p-2 rounded-full border border-black/5">
+<div id="light-red" class="traffic-dot w-4 h-4 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
+<div id="light-yellow" class="traffic-dot w-4 h-4 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
+<div id="light-green" class="traffic-dot w-4 h-4 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
 </div>
 </div>
-<!-- STAT CARDS -->
+<!-- SUMMARY CARDS -->
 <div class="grid grid-cols-2 gap-4">
-<div class="glass p-6 rounded-[2.5rem] space-y-1">
+<div class="glass p-6 rounded-[2.5rem] relative">
 <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Monthly Limit</p>
-<p id="display-budget" class="text-lg font-bold">₦0</p>
+<p id="display-budget" class="text-lg font-bold">0</p>
 </div>
-<div class="bg-zinc-900 p-6 rounded-[2.5rem] space-y-1 shadow-xl shadow-zinc-900/20">
-<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Spent So Far</p>
-<p id="display-spent" class="text-lg font-bold text-indigo-400">₦0</p>
-</div>
-</div>
-<!-- RECENT ACTIVITY -->
-<div class="space-y-4">
-<h3 class="text-xs font-black uppercase tracking-widest text-zinc-400 ml-2">Recent Logs</h3>
-<div id="expense-list" class="space-y-3">
-<div class="text-center py-10 text-zinc-400 text-xs italic">Loading your ledger...</div>
+<div class="bg-zinc-900 dark:bg-indigo-600 p-6 rounded-[2.5rem] shadow-xl">
+<p class="text-[10px] font-black text-white/50 uppercase tracking-widest">Total Spent</p>
+<p id="display-spent" class="text-lg font-bold text-white">0</p>
 </div>
 </div>
-<!-- FLOATING INPUT -->
-<div class="fixed bottom-8 left-0 w-full px-6">
-<div class="max-w-md mx-auto glass p-3 rounded-[2.5rem] shadow-2xl flex items-center gap-3 border-white">
-<div class="bg-zinc-100 w-12 h-12 rounded-full flex items-center justify-center text-zinc-400 ml-1 font-bold">₦</div>
-<input id="amount-input" type="number" placeholder="Enter amount..." class="flex-1 bg-transparent py-3 font-bold text-xl outline-none" />
-<button onclick="addExpense()" id="add-btn" class="bg-zinc-900 hover:bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90">
-<i data-lucide="plus" class="w-7 h-7"></i>
+<!-- HISTORY -->
+<div id="expense-list" class="space-y-3"></div>
+<!-- INPUT BOX -->
+<div class="fixed bottom-8 left-0 w-full px-6 flex justify-center">
+<div class="w-full max-w-md glass p-3 rounded-[2.5rem] shadow-2xl flex items-center gap-3 border-white/20">
+<span id="current-symbol" class="ml-4 font-black text-zinc-400">₦</span>
+<input id="amount-input" type="number" placeholder="0.00" class="flex-1 bg-transparent py-3 font-bold text-xl outline-none">
+<button onclick="addExpense()" class="bg-zinc-900 dark:bg-white dark:text-black text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+<i data-lucide="plus" class="w-8 h-8"></i>
 </button>
 </div>
 </div>
-</div>
+</section>
 <script>
-// --- YOUR INTEGRATED FIREBASE KEYS ---
+// --- FIREBASE CONFIG ---
 const firebaseConfig = {
 apiKey: "AIzaSyA0_1qvuG5TGiS2HM8E-lXOmL1ri0T2658",
 authDomain: "nerk-4ca89.firebaseapp.com",
@@ -84,108 +116,113 @@ storageBucket: "nerk-4ca89.firebasestorage.app",
 messagingSenderId: "913086486476",
 appId: "1:913086486476:web:dbf3424285fdfa0ac1ef69"
 };
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-let currentBudget = localStorage.getItem('nerk_budget') || 500000;
+const auth = firebase.auth();
+let user = null;
+let currency = localStorage.getItem('nerk_currency') || '₦';
+let budget = 0;
 let totalSpent = 0;
-function init() {
-lucide.createIcons();
-fetchExpenses();
-updateBudgetUI();
+// AUTH LOGIC
+auth.onAuthStateChanged(u => {
+user = u;
+if (u) {
+document.getElementById('auth-screen').classList.add('hide');
+document.getElementById('dashboard').classList.remove('hide');
+const now = new Date();
+document.getElementById('month-filter').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+init();
+} else {
+document.getElementById('auth-screen').classList.remove('hide');
+document.getElementById('dashboard').classList.add('hide');
 }
-function updateBudgetUI() {
-document.getElementById('display-budget').innerText = `₦${Number(currentBudget).toLocaleString()}`;
+});
+async function handleAuth(type) {
+const email = document.getElementById('auth-email').value;
+const pass = document.getElementById('auth-pass').value;
+try {
+if (type === 'signup') await auth.createUserWithEmailAndPassword(email, pass);
+else await auth.signInWithEmailAndPassword(email, pass);
+} catch (e) { alert(e.message); }
 }
-function setNewBudget() {
-const val = prompt("Enter your monthly budget limit (₦):", currentBudget);
-if (val && !isNaN(val)) {
-currentBudget = val;
-localStorage.setItem('nerk_budget', val);
-updateBudgetUI();
+// SETTINGS & UI
+function toggleDarkMode() {
+document.getElementById('main-html').classList.toggle('dark');
+}
+function changeCurrency() {
+currency = document.getElementById('currency-select').value;
+localStorage.setItem('nerk_currency', currency);
+document.getElementById('current-symbol').innerText = currency;
 calculateTraffic();
+}
+function init() {
+document.getElementById('currency-select').value = currency;
+document.getElementById('current-symbol').innerText = currency;
+lucide.createIcons();
+fetchBudget();
+fetchExpenses();
+}
+async function fetchBudget() {
+const doc = await db.collection("budgets").doc(user.uid).get();
+budget = doc.exists ? doc.data().amount : 0;
+document.getElementById('display-budget').innerText = `${currency}${budget.toLocaleString()}`;
+calculateTraffic();
+}
+async function setNewBudget() {
+const val = prompt("Enter Monthly Budget Limit:", budget);
+if (val && !isNaN(val)) {
+budget = Number(val);
+await db.collection("budgets").doc(user.uid).set({ amount: budget });
+fetchBudget();
 }
 }
 function fetchExpenses() {
-db.collection("expenses").orderBy("createdAt", "desc").limit(15).onSnapshot((snapshot) => {
+const monthFilter = document.getElementById('month-filter').value;
+if (!monthFilter) return;
+const [year, month] = monthFilter.split('-');
+const start = new Date(year, month - 1, 1);
+const end = new Date(year, month, 0, 23, 59, 59);
+db.collection("expenses")
+.where("uid", "==", user.uid)
+.where("createdAt", ">=", start)
+.where("createdAt", "<=", end)
+.onSnapshot(snap => {
 const list = document.getElementById('expense-list');
 list.innerHTML = '';
 totalSpent = 0;
-snapshot.forEach((doc) => {
+snap.forEach(doc => {
 const data = doc.data();
-totalSpent += Number(data.amount);
+totalSpent += data.amount;
 const item = document.createElement('div');
-item.className = "glass p-5 rounded-[2rem] flex justify-between items-center transition-all hover:translate-x-1";
-item.innerHTML = `
-<div class="flex items-center gap-4">
-<div class="w-11 h-11 bg-zinc-100 rounded-2xl flex items-center justify-center text-zinc-400">
-<i data-lucide="arrow-up-right" class="w-5 h-5"></i>
-</div>
-<div>
-<p class="font-bold text-sm">Capital Outflow</p>
-<p class="text-[10px] text-zinc-400 uppercase font-black tracking-widest">Confirmed</p>
-</div>
-</div>
-<span class="font-black text-sm text-zinc-900">-₦${data.amount.toLocaleString()}</span>
-`;
+item.className = "glass p-4 rounded-[1.5rem] flex justify-between items-center";
+item.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center"><i data-lucide="shopping-cart" class="w-4 h-4"></i></div><span class="text-xs font-bold">Spent</span></div><span class="font-black">-${currency}${data.amount.toLocaleString()}</span>`;
 list.appendChild(item);
 });
 lucide.createIcons();
 calculateTraffic();
-}, (error) => {
-console.error("Firebase Error:", error);
-document.getElementById('expense-list').innerHTML = `<p class="text-red-500 text-xs text-center">Connection Error. Check Firebase Rules.</p>`;
 });
 }
 function calculateTraffic() {
-const ratio = totalSpent / currentBudget;
-const balance = currentBudget - totalSpent;
-document.getElementById('display-balance').innerText = `₦${balance.toLocaleString()}`;
-document.getElementById('display-spent').innerText = `₦${totalSpent.toLocaleString()}`;
-const r = document.getElementById('light-red');
-const y = document.getElementById('light-yellow');
-const g = document.getElementById('light-green');
-const statusLabel = document.getElementById('status-text');
-// Reset lights
-r.className = "traffic-dot w-5 h-5 rounded-full bg-zinc-300";
-y.className = "traffic-dot w-5 h-5 rounded-full bg-zinc-300";
-g.className = "traffic-dot w-5 h-5 rounded-full bg-zinc-300";
-if (ratio < 0.5) {
-g.classList.add('light-active-green');
-statusLabel.innerText = "Safe Zone";
-statusLabel.className = "text-[10px] font-black uppercase tracking-widest text-green-600";
-} else if (ratio < 0.9) {
-y.classList.add('light-active-yellow');
-statusLabel.innerText = "Caution Zone";
-statusLabel.className = "text-[10px] font-black uppercase tracking-widest text-yellow-600";
-} else {
-r.classList.add('light-active-red');
-statusLabel.innerText = "Danger Zone";
-statusLabel.className = "text-[10px] font-black uppercase tracking-widest text-red-600";
-}
+const balance = budget - totalSpent;
+const ratio = totalSpent / budget || 0;
+document.getElementById('display-balance').innerText = `${currency}${balance.toLocaleString()}`;
+document.getElementById('display-spent').innerText = `${currency}${totalSpent.toLocaleString()}`;
+document.getElementById('display-budget').innerText = `${currency}${budget.toLocaleString()}`;
+const r = document.getElementById('light-red'), y = document.getElementById('light-yellow'), g = document.getElementById('light-green');
+const st = document.getElementById('status-text');
+[r, y, g].forEach(l => l.className = "traffic-dot w-4 h-4 rounded-full bg-zinc-300 dark:bg-zinc-700");
+if (ratio < 0.5) { g.classList.add('light-active-green'); st.innerText = "Safe Zone"; st.className = "text-[10px] font-black uppercase tracking-widest text-green-500"; }
+else if (ratio < 0.9) { y.classList.add('light-active-yellow'); st.innerText = "Caution"; st.className = "text-[10px] font-black uppercase tracking-widest text-yellow-500"; }
+else { r.classList.add('light-active-red'); st.innerText = "Danger"; st.className = "text-[10px] font-black uppercase tracking-widest text-red-500"; }
 }
 async function addExpense() {
-const input = document.getElementById('amount-input');
-const btn = document.getElementById('add-btn');
-const amount = Number(input.value);
+const amount = Number(document.getElementById('amount-input').value);
 if (!amount || amount <= 0) return;
-btn.disabled = true;
-btn.innerHTML = `<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>`;
-try {
 await db.collection("expenses").add({
-amount: amount,
-createdAt: firebase.firestore.FieldValue.serverTimestamp()
+amount, uid: user.uid, createdAt: new Date()
 });
-input.value = '';
-} catch (e) {
-alert("Database Error. Ensure 'Test Mode' is on in Firestore.");
-} finally {
-btn.disabled = false;
-btn.innerHTML = `<i data-lucide="plus" class="w-7 h-7"></i>`;
-lucide.createIcons();
+document.getElementById('amount-input').value = '';
 }
-}
-init();
 </script>
 </body>
 </html>
