@@ -36,11 +36,11 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <div class="w-full max-w-md space-y-12 text-center">
 <div class="space-y-2">
 <h1 class="text-6xl font-black tracking-tighter">NERK</h1>
-<p class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">USERNAME AUTH ONLY</p>
+<p class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">AUTHENTICATION SECURED</p>
 </div>
 <div class="glass p-10 rounded-[3.5rem] space-y-5 shadow-2xl border-white/50">
 <input id="auth-username" type="text" placeholder="Username" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm">
-<input id="auth-pass" type="password" placeholder="Password" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm">
+<input id="auth-pass" type="password" placeholder="Password (Min. 6 characters)" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm">
 <button onclick="handleAuth('login')" id="login-btn" class="w-full bg-zinc-900 dark:bg-white dark:text-black text-white p-5 rounded-[1.5rem] font-black shadow-xl active:scale-95 transition-transform">LOG IN</button>
 <button onclick="handleAuth('signup')" class="text-[10px] font-black text-zinc-400 hover:text-indigo-500 uppercase tracking-[0.2em] pt-2">Create New Account</button>
 </div>
@@ -161,18 +161,26 @@ document.getElementById('auth-screen').classList.remove('hide');
 document.getElementById('dashboard').classList.add('hide');
 }
 });
-// GHOST SUFFIX AUTH: Username only for user, Email for Firebase
+// REPAIRED AUTH LOGIC
 async function handleAuth(type) {
 const username = document.getElementById('auth-username').value.trim();
 const pass = document.getElementById('auth-pass').value;
 const btn = document.getElementById('login-btn');
-if(!username || !pass) return alert("Credentials missing.");
+if(!username || !pass) return alert("Credentials required.");
+if(pass.length < 6) return alert("Firebase Protocol: Password must be at least 6 characters.");
 const ghostEmail = `${username}@nerk.com`;
 btn.innerText = "AUTHENTICATING...";
 try {
-if (type === 'signup') await auth.createUserWithEmailAndPassword(ghostEmail, pass);
-else await auth.signInWithEmailAndPassword(ghostEmail, pass);
-} catch (e) { alert("Access Denied."); btn.innerText = "LOG IN"; }
+if (type === 'signup') {
+await auth.createUserWithEmailAndPassword(ghostEmail, pass);
+alert("Infrastructure Secured. Account Created.");
+} else {
+await auth.signInWithEmailAndPassword(ghostEmail, pass);
+}
+} catch (e) {
+alert("System Message: " + e.message);
+btn.innerText = "LOG IN";
+}
 }
 function toggleDarkMode() { document.getElementById('main-html').classList.toggle('dark'); }
 function init() {
@@ -274,9 +282,9 @@ const blob = new Blob([csv], { type: 'text/csv' });
 const url = window.URL.createObjectURL(blob);
 const a = document.createElement('a');
 a.setAttribute('href', url);
-a.setAttribute('download', `NERK_Infrastructure_Statement_${month}.csv`);
+a.setAttribute('download', `NERK_Statement_${month}.csv`);
 a.click();
 }
 </script>
 </body>
-</htm
+</html>
