@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" id="main-html" class="light">
+<html lang="en" id="main-html" class="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,43 +11,38 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script>
-tailwind.config = {
-darkMode: 'class',
-theme: { extend: { colors: { darkbg: '#09090b', darkcard: '#18181b' } } }
-}
+tailwind.config = { darkMode: 'class', theme: { extend: { colors: { darkbg: '#09090b', darkcard: '#18181b' } } } }
 </script>
 <style>
-body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s ease; overflow-x: hidden; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s ease; overflow-x: hidden; }
 .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); }
 .dark .glass { background: rgba(24, 24, 27, 0.6); border: 1px solid rgba(255,255,255,0.1); }
-.traffic-dot { transition: all 0.4s ease; width: 22px; height: 22px; border-radius: 50%; background: #3f3f46; }
+.traffic-dot { transition: 0.4s; width: 22px; height: 22px; border-radius: 50%; background: #3f3f46; }
 .light-active-green { background: #22c55e !important; box-shadow: 0 0 25px #22c55e; }
 .light-active-yellow { background: #eab308 !important; box-shadow: 0 0 25px #eab308; }
 .light-active-red { background: #ef4444 !important; box-shadow: 0 0 25px #ef4444; }
 .hide { display: none !important; }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; border-radius: 10px; }
+.calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; border-radius: 8px; }
 .day-active { background: #22c55e !important; color: white !important; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
-.modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); transition: all 0.3s ease; }
+.modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 100; }
 </style>
 </head>
 <body class="bg-[#f4f4f7] dark:bg-darkbg text-zinc-900 dark:text-zinc-100 min-h-screen">
 <!-- AUTH SCREEN -->
 <section id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
 <div class="w-full max-w-md space-y-12 text-center">
-<div class="space-y-2">
 <h1 class="text-6xl font-black tracking-tighter uppercase">NERK</h1>
-<p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">NERK FROM KODEBLOCK</p>
-</div>
+<p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">KODEBLOCK INFRASTRUCTURE</p>
 <div class="glass p-8 rounded-[3rem] space-y-5 shadow-2xl">
 <input id="auth-email" type="email" placeholder="Gmail Address" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
 <input id="auth-pass" type="password" placeholder="Password" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
-<button onclick="handleAuth('login')" class="w-full bg-zinc-900 dark:bg-white dark:text-black text-white p-5 rounded-[1.5rem] font-black shadow-xl">LOG IN</button>
-<button onclick="handleAuth('signup')" class="text-[10px] font-black text-zinc-400 hover:text-indigo-500 uppercase tracking-[0.2em] pt-2">Register Infrastructure</button>
+<button onclick="handleAuth()" class="w-full bg-zinc-900 dark:bg-white dark:text-black text-white p-5 rounded-[1.5rem] font-black shadow-xl">SECURE ACCESS</button>
+<p class="text-[9px] font-bold opacity-30 uppercase tracking-widest">Login or Register automatically</p>
 </div>
 </div>
 </section>
-<!-- DASHBOARD -->
+<!-- MAIN DASHBOARD -->
 <section id="dashboard" class="hide p-4 md:p-6 pb-64 max-w-6xl mx-auto">
 <header class="flex justify-between items-center pt-4 mb-8">
 <div onclick="toggleDarkMode()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center cursor-pointer shadow-sm">
@@ -61,11 +56,10 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </header>
 <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
 <div class="space-y-6">
-<!-- STATUS CARD -->
 <div class="glass rounded-[3rem] p-8 md:p-10 shadow-2xl flex justify-between items-center relative border border-white/10">
 <div class="space-y-1">
 <p id="status-text" class="text-[9px] font-black uppercase tracking-widest text-green-500">Safe Zone</p>
-<p class="text-[10px] font-medium text-zinc-400">Capital Remaining</p>
+<p class="text-[10px] font-medium text-zinc-400">Infrastructure Capital Remaining</p>
 <h2 id="display-balance" class="text-3xl md:text-4xl font-black tracking-tighter">₦0</h2>
 </div>
 <div class="flex flex-col gap-3 bg-zinc-200/50 dark:bg-zinc-800/50 p-3 rounded-full border border-black/5">
@@ -90,7 +84,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 <div class="lg:block">
 <div class="glass rounded-[2rem] p-6 pt-10 sticky top-6 shadow-xl">
-<h3 id="cal-month-title" class="text-[14px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-300 mb-6 text-center">MONTH 2026</h3>
+<h3 id="cal-month-title" class="text-[14px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-300 mb-6 text-center">MONTH</h3>
 <div class="calendar-grid text-[8px] font-black text-zinc-400 mb-2 uppercase text-center">
 <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
 </div>
@@ -104,7 +98,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </button>
 </section>
 <!-- ENTRY MODAL -->
-<div id="entry-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 modal-overlay hide">
+<div id="entry-modal" class="fixed inset-0 flex items-center justify-center p-6 modal-overlay hide">
 <div class="glass w-full max-w-sm rounded-[3rem] p-10 shadow-2xl border border-white/20 animate-fade-in text-black dark:text-white">
 <div class="flex justify-between items-center mb-8">
 <h2 class="text-2xl font-black tracking-tighter uppercase">LOG BURN</h2>
@@ -113,7 +107,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <div class="space-y-6">
 <div>
 <label class="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-2 block">Item Name</label>
-<input id="item-input" type="text" placeholder="e.g. Infrastructure" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
+<input id="item-input" type="text" placeholder="e.g. Server" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
 </div>
 <div>
 <label class="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-2 block">Amount (₦)</label>
@@ -135,127 +129,102 @@ appId: "1:913086486476:web:dbf3424285fdfa0ac1ef69"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
-let user = null, budget = 0, totalSpent = 0;
+let user = null, userData = { budget: 0, expenses: [] };
 auth.onAuthStateChanged(u => {
 user = u;
 if (u) {
 document.getElementById('auth-screen').classList.add('hide');
 document.getElementById('dashboard').classList.remove('hide');
-init();
+syncData();
 } else {
 document.getElementById('auth-screen').classList.remove('hide');
 document.getElementById('dashboard').classList.add('hide');
 }
 });
-async function handleAuth(type) {
-const email = document.getElementById('auth-email').value, pass = document.getElementById('auth-pass').value;
-try {
-if (type === 'signup') await auth.createUserWithEmailAndPassword(email, pass);
-else await auth.signInWithEmailAndPassword(email, pass);
-} catch (e) { alert(e.message); }
+async function handleAuth() {
+const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
+try { await auth.signInWithEmailAndPassword(e, p); }
+catch { await auth.createUserWithEmailAndPassword(e, p); }
 }
 function openEntryModal() { document.getElementById('entry-modal').classList.remove('hide'); }
 function closeEntryModal() { document.getElementById('entry-modal').classList.add('hide'); }
+// THE TITAN SYNC: Single document logic
+async function syncData() {
+const docRef = db.collection("infrastructure").doc(user.uid);
+const doc = await docRef.get();
+if (doc.exists) {
+userData = doc.data();
+} else {
+await docRef.set(userData);
+}
+updateUI();
+renderCalendar();
+}
 async function handleSubmitExpense() {
 const itemIn = document.getElementById('item-input'), amountIn = document.getElementById('amount-input');
-const item = itemIn.value.trim(), amount = parseFloat(amountIn.value);
-const btn = document.getElementById('submit-btn');
-if (!item || isNaN(amount) || amount <= 0) return alert("Required: Item Name and Amount.");
-btn.disabled = true; btn.innerText = "COMMITTING...";
-try {
-await db.collection("expenses").add({
-item: item,
-amount: amount,
-uid: user.uid,
-createdAt: firebase.firestore.Timestamp.now()
-});
+const amount = parseFloat(amountIn.value);
+if (!itemIn.value || isNaN(amount)) return alert("Invalid Data");
+const newExpense = {
+item: itemIn.value,
+amount,
+date: new Date().toISOString()
+};
+userData.expenses = [newExpense, ...userData.expenses];
 itemIn.value = ''; amountIn.value = '';
 closeEntryModal();
-} catch (e) { alert("Infrastructure Error: " + e.message); }
-finally { btn.disabled = false; btn.innerText = "COMMIT TO LEDGER"; }
-}
-function init() { fetchBudget(); fetchExpenses(); renderCalendar(); lucide.createIcons(); }
-async function fetchBudget() {
-const doc = await db.collection("budgets").doc(user.uid).get();
-budget = doc.exists ? Number(doc.data().amount) : 0;
+// Instant UI Update (Stark Speed)
 updateUI();
+// Background Cloud Sync
+await db.collection("infrastructure").doc(user.uid).set(userData);
 }
 async function setNewBudget() {
-const val = prompt("Set Monthly Capital Limit:", budget);
-if (val !== null && !isNaN(val)) {
-budget = Number(val);
-await db.collection("budgets").doc(user.uid).set({ amount: budget });
+const val = prompt("Set Limit:", userData.budget);
+if (val !== null) {
+userData.budget = Number(val);
 updateUI();
+await db.collection("infrastructure").doc(user.uid).set(userData);
 }
-}
-// --- DONO OVERHAUL: Internal Filtering Protocol ---
-function fetchExpenses() {
-const now = new Date();
-const currentMonth = now.getMonth();
-const currentYear = now.getFullYear();
-// Fetch ALL for user, filter locally to avoid indexing/timezone issues
-db.collection("expenses")
-.where("uid", "==", user.uid)
-.onSnapshot(snap => {
-const list = document.getElementById('expense-list');
-list.innerHTML = '';
-let runningTotal = 0;
-let docs = [];
-snap.forEach(doc => {
-const data = doc.data();
-const date = data.createdAt ? data.createdAt.toDate() : new Date();
-// Only show items for THIS month
-if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
-docs.push(data);
-}
-});
-// Sort: Newest first
-docs.sort((a, b) => {
-const tA = a.createdAt ? a.createdAt.toMillis() : Date.now();
-const tB = b.createdAt ? b.createdAt.toMillis() : Date.now();
-return tB - tA;
-});
-docs.forEach(d => {
-runningTotal += Number(d.amount);
-const div = document.createElement('div');
-div.className = "glass p-6 rounded-[2rem] flex justify-between items-center shadow-sm border border-white/5 animate-fade-in";
-div.innerHTML = `
-<div class="space-y-1">
-<p class="text-[10px] font-black uppercase text-zinc-400">Burn Log</p>
-<p class="text-sm font-bold text-black dark:text-white">${d.item}</p>
-</div>
-<span class="font-black text-rose-500">-₦${d.amount.toLocaleString()}</span>
-`;
-list.appendChild(div);
-});
-totalSpent = runningTotal;
-updateUI();
-});
 }
 function updateUI() {
-const balance = budget - totalSpent;
-const ratio = budget > 0 ? (totalSpent / budget) : 0;
+const now = new Date();
+// Only count expenses for THIS month
+const currentExpenses = userData.expenses.filter(e => {
+const d = new Date(e.date);
+return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+});
+const totalSpent = currentExpenses.reduce((sum, e) => sum + e.amount, 0);
+const balance = userData.budget - totalSpent;
+const ratio = userData.budget > 0 ? (totalSpent / userData.budget) : 0;
 document.getElementById('display-balance').innerText = `₦${balance.toLocaleString()}`;
 document.getElementById('display-spent').innerText = `₦${totalSpent.toLocaleString()}`;
-document.getElementById('display-budget').innerText = `₦${budget.toLocaleString()}`;
+document.getElementById('display-budget').innerText = `₦${userData.budget.toLocaleString()}`;
+const list = document.getElementById('expense-list');
+list.innerHTML = '';
+currentExpenses.forEach(e => {
+const div = document.createElement('div');
+div.className = "glass p-6 rounded-[2rem] flex justify-between items-center animate-fade-in mb-3 border border-white/5";
+div.innerHTML = `<div><p class="text-[10px] font-black uppercase text-zinc-400">Burn Log</p><p class="text-sm font-bold">${e.item}</p></div><span class="font-black text-rose-500">-₦${e.amount.toLocaleString()}</span>`;
+list.appendChild(div);
+});
 const r = document.getElementById('light-red'), y = document.getElementById('light-yellow'), g = document.getElementById('light-green');
 [r, y, g].forEach(l => l.className = "traffic-dot");
 if (ratio < 0.5) g.classList.add('light-active-green');
 else if (ratio < 0.9) y.classList.add('light-active-yellow');
 else r.classList.add('light-active-red');
+lucide.createIcons();
 }
 function renderCalendar() {
 const now = new Date();
 const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 document.getElementById('cal-month-title').innerText = `${months[now.getMonth()]} ${now.getFullYear()}`;
-const startDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-const calDays = document.getElementById('calendar-days');
-calDays.innerHTML = '';
-for (let i = 0; i < startDay; i++) calDays.innerHTML += '<div></div>';
-for (let day = 1; day <= lastDay; day++) {
-const isToday = new Date().getDate() === day && new Date().getMonth() === now.getMonth();
-calDays.innerHTML += `<div class="calendar-day ${isToday ? 'day-active' : 'bg-zinc-100/50 dark:bg-zinc-800/50'}">${day}</div>`;
+const start = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+const days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+const grid = document.getElementById('calendar-days');
+grid.innerHTML = '';
+for (let i = 0; i < start; i++) grid.innerHTML += '<div></div>';
+for (let i = 1; i <= days; i++) {
+const isToday = now.getDate() === i;
+grid.innerHTML += `<div class="calendar-day ${isToday ? 'day-active' : 'bg-zinc-100/50 dark:bg-zinc-800/50'}">${i}</div>`;
 }
 }
 function toggleDarkMode() { document.getElementById('main-html').classList.toggle('dark'); }
