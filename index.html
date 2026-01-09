@@ -6,7 +6,6 @@
 <title>NERK | KODEBLOCK Edition</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<!-- FIREBASE SDKS -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -26,9 +25,9 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 .light-active-yellow { background: #eab308; box-shadow: 0 0 25px #eab308; }
 .light-active-red { background: #ef4444; box-shadow: 0 0 25px #ef4444; }
 .hide { display: none !important; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border-radius: 8px; }
-.day-active { background: #22c55e; color: white; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border-radius: 12px; transition: 0.3s; }
+.day-active { background: #22c55e; color: white; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
 </style>
 </head>
 <body class="bg-[#f4f4f7] dark:bg-darkbg text-zinc-900 dark:text-zinc-100 min-h-screen">
@@ -37,7 +36,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <div class="w-full max-w-md space-y-12 text-center">
 <div class="space-y-2">
 <h1 class="text-6xl font-black tracking-tighter">NERK</h1>
-<p class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">NERK FROM KODEBLOCK</p>
+<p class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">USERNAME AUTH ONLY</p>
 </div>
 <div class="glass p-10 rounded-[3.5rem] space-y-5 shadow-2xl border-white/50">
 <input id="auth-username" type="text" placeholder="Username" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm">
@@ -48,23 +47,23 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </section>
 <!-- MAIN DASHBOARD -->
-<section id="dashboard" class="hide p-6 pb-40 max-w-5xl mx-auto animate-in fade-in">
-<div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
-<!-- LEFT COLUMN: MAIN OPS -->
+<section id="dashboard" class="hide p-6 pb-40 max-w-6xl mx-auto animate-in fade-in">
+<div class="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8">
+<!-- LEFT: FINANCE OPS -->
 <div class="space-y-8">
 <header class="flex justify-between items-center pt-8">
 <div class="flex items-center gap-4">
-<div onclick="toggleDarkMode()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center cursor-pointer">
+<div onclick="toggleDarkMode()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center cursor-pointer shadow-sm">
 <i data-lucide="moon" class="w-5 h-5 dark:hide"></i>
 <i data-lucide="sun" class="w-5 h-5 hide dark:block text-yellow-400"></i>
 </div>
-<button onclick="downloadStatement()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all">
-<i data-lucide="download" class="w-5 h-5"></i>
+<button onclick="downloadStatement()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all shadow-sm">
+<i data-lucide="file-down" class="w-5 h-5"></i>
 </button>
 </div>
 <div class="text-right">
 <h2 class="text-2xl font-black tracking-tighter uppercase">NERK</h2>
-<p class="text-[8px] font-black uppercase tracking-widest text-zinc-400">KODEBLOCK EDITION</p>
+<p class="text-[8px] font-black uppercase tracking-widest text-zinc-400">INFRASTRUCTURE</p>
 </div>
 </header>
 <div class="flex items-center gap-3">
@@ -73,7 +72,6 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <i data-lucide="log-out" class="w-5 h-5"></i>
 </button>
 </div>
-<!-- BUDGET STATUS CARD -->
 <div class="glass rounded-[3.5rem] p-10 shadow-2xl flex justify-between items-center relative overflow-hidden">
 <div class="space-y-1">
 <div class="flex items-center gap-2">
@@ -82,49 +80,47 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <i data-lucide="edit-3" class="w-3 h-3 text-zinc-400"></i>
 </button>
 </div>
-<p class="text-[11px] font-medium text-zinc-400">Remaining Balance</p>
+<p class="text-[11px] font-medium text-zinc-400">Remaining Infrastructure Capital</p>
 <h2 id="display-balance" class="text-4xl font-black tracking-tighter">0</h2>
 </div>
-<div class="flex flex-col gap-3 bg-zinc-200/50 dark:bg-zinc-800/50 p-2.5 rounded-full border border-black/5">
+<div class="flex flex-col gap-3 bg-zinc-200/50 dark:bg-zinc-800/50 p-2.5 rounded-full border border-black/5 shadow-inner">
 <div id="light-red" class="traffic-dot w-5 h-5 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
 <div id="light-yellow" class="traffic-dot w-5 h-5 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
 <div id="light-green" class="traffic-dot w-5 h-5 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
 </div>
 </div>
 <div class="grid grid-cols-2 gap-4">
-<div class="glass p-7 rounded-[2.5rem]">
-<p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">Monthly Limit</p>
+<div class="glass p-7 rounded-[2.5rem] shadow-sm">
+<p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">Set Monthly Budget</p>
 <p id="display-budget" class="text-lg font-bold tracking-tight">0</p>
 </div>
 <div class="bg-zinc-900 dark:bg-white dark:text-black p-7 rounded-[2.5rem] shadow-xl text-white">
-<p class="text-[9px] font-black opacity-50 uppercase tracking-widest mb-1">Spent So Far</p>
+<p class="text-[9px] font-black opacity-50 uppercase tracking-widest mb-1">Total Burn</p>
 <p id="display-spent" class="text-lg font-bold tracking-tight">0</p>
 </div>
 </div>
 <div id="expense-list" class="space-y-3"></div>
 </div>
-<!-- RIGHT COLUMN: COMMAND CENTER (CALENDAR) -->
+<!-- RIGHT: TEMPORAL CALENDAR -->
 <div class="space-y-6">
-<div class="glass rounded-[2.5rem] p-6 pt-10 sticky top-6">
-<h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-6 text-center">Temporal Index</h3>
-<div id="calendar-title" class="text-sm font-black text-center mb-4 uppercase tracking-tighter">January 2026</div>
-<div class="calendar-grid text-[8px] font-black text-zinc-400 mb-2 uppercase text-center">
-<span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+<div class="glass rounded-[2.5rem] p-8 pt-12 sticky top-6 shadow-sm">
+<h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">Temporal Index</h3>
+<div id="calendar-title" class="text-lg font-black text-center mb-6 uppercase tracking-tighter">January 2026</div>
+<div class="calendar-grid text-[9px] font-black text-zinc-400 mb-4 uppercase text-center opacity-50">
+<span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
 </div>
-<div id="calendar-days" class="calendar-grid">
-<!-- Days injected via JS -->
-</div>
-<div class="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800">
-<p class="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-4">Quick Stats</p>
-<div class="flex justify-between items-center mb-2">
-<span class="text-[10px] font-bold">Daily Average</span>
+<div id="calendar-days" class="calendar-grid"></div>
+<div class="mt-10 pt-8 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
+<p class="text-[9px] font-black uppercase tracking-widest text-zinc-400">Burn Metrics</p>
+<div class="flex justify-between items-center">
+<span class="text-[10px] font-bold opacity-60">Daily Velocity</span>
 <span id="stat-avg" class="text-xs font-black">₦0</span>
 </div>
 </div>
 </div>
 </div>
 </div>
-<!-- INPUT BAR -->
+<!-- INPUT UNIT -->
 <div class="fixed bottom-10 left-0 w-full px-6 flex justify-center z-50">
 <div class="w-full max-w-md glass p-3 rounded-[3rem] shadow-2xl flex items-center gap-3 border-white/40">
 <span id="current-symbol" class="ml-5 font-black text-xl text-zinc-400">₦</span>
@@ -136,7 +132,6 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </section>
 <script>
-// FIREBASE CONFIG REMAINS SAME
 const firebaseConfig = {
 apiKey: "AIzaSyA0_1qvuG5TGiS2HM8E-lXOmL1ri0T2658",
 authDomain: "nerk-4ca89.firebaseapp.com",
@@ -166,17 +161,18 @@ document.getElementById('auth-screen').classList.remove('hide');
 document.getElementById('dashboard').classList.add('hide');
 }
 });
+// GHOST SUFFIX AUTH: Username only for user, Email for Firebase
 async function handleAuth(type) {
 const username = document.getElementById('auth-username').value.trim();
 const pass = document.getElementById('auth-pass').value;
 const btn = document.getElementById('login-btn');
-if(!username || !pass) return alert("Enter credentials");
-const email = `${username}@nerk.com`;
-btn.innerText = "VERIFYING...";
+if(!username || !pass) return alert("Credentials missing.");
+const ghostEmail = `${username}@nerk.com`;
+btn.innerText = "AUTHENTICATING...";
 try {
-if (type === 'signup') await auth.createUserWithEmailAndPassword(email, pass);
-else await auth.signInWithEmailAndPassword(email, pass);
-} catch (e) { alert("Login failed."); btn.innerText = "LOG IN"; }
+if (type === 'signup') await auth.createUserWithEmailAndPassword(ghostEmail, pass);
+else await auth.signInWithEmailAndPassword(ghostEmail, pass);
+} catch (e) { alert("Access Denied."); btn.innerText = "LOG IN"; }
 }
 function toggleDarkMode() { document.getElementById('main-html').classList.toggle('dark'); }
 function init() {
@@ -191,7 +187,7 @@ budget = doc.exists ? doc.data().amount : 0;
 calculateTraffic();
 }
 async function setNewBudget() {
-const val = prompt("Set Monthly Limit:", budget);
+const val = prompt("Establish Monthly Capital:", budget);
 if (val && !isNaN(val)) {
 budget = Number(val);
 await db.collection("budgets").doc(user.uid).set({ amount: budget });
@@ -208,13 +204,11 @@ const calDays = document.getElementById('calendar-days');
 const calTitle = document.getElementById('calendar-title');
 calTitle.innerText = date.toLocaleString('default', { month: 'long', year: 'numeric' });
 calDays.innerHTML = '';
-for (let i = 0; i < startDay; i++) {
-calDays.innerHTML += '<div></div>';
-}
-const today = new Date();
+for (let i = 0; i < startDay; i++) { calDays.innerHTML += '<div></div>'; }
+const now = new Date();
 for (let day = 1; day <= lastDay; day++) {
-const isToday = today.getDate() === day && today.getMonth() === month-1 && today.getFullYear() === year;
-calDays.innerHTML += `<div class="calendar-day ${isToday ? 'day-active' : 'bg-zinc-100 dark:bg-zinc-800'}">${day}</div>`;
+const isToday = now.getDate() === day && now.getMonth() === month-1 && now.getFullYear() === year;
+calDays.innerHTML += `<div class="calendar-day ${isToday ? 'day-active' : 'bg-zinc-100/50 dark:bg-zinc-800/50'}">${day}</div>`;
 }
 }
 function fetchExpenses() {
@@ -236,12 +230,8 @@ const data = doc.data();
 currentExpenses.push(data);
 totalSpent += data.amount;
 const item = document.createElement('div');
-item.className = "glass p-5 rounded-[2rem] flex justify-between items-center";
-item.innerHTML = `
-<div class="flex items-center gap-4 text-xs font-bold">
-<i data-lucide="zap" class="w-4 h-4 text-indigo-500"></i> Log Outflow
-</div>
-<span class="font-black">-${currency}${data.amount.toLocaleString()}</span>`;
+item.className = "glass p-6 rounded-[2.2rem] flex justify-between items-center shadow-sm";
+item.innerHTML = `<div class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest"><i data-lucide="activity" class="w-4 h-4 text-zinc-400"></i> Capital Outflow</div><span class="font-black">-${currency}${data.amount.toLocaleString()}</span>`;
 list.appendChild(item);
 });
 lucide.createIcons();
@@ -264,8 +254,8 @@ const r = document.getElementById('light-red'), y = document.getElementById('lig
 const st = document.getElementById('status-text');
 [r, y, g].forEach(l => l.className = "traffic-dot w-5 h-5 rounded-full bg-zinc-300 dark:bg-zinc-700");
 if (ratio < 0.5) { g.classList.add('light-active-green'); st.innerText = "Safe Zone"; st.className = "text-[10px] font-black uppercase tracking-widest text-green-500"; }
-else if (ratio < 0.9) { y.classList.add('light-active-yellow'); st.innerText = "Caution"; st.className = "text-[10px] font-black uppercase tracking-widest text-yellow-500"; }
-else { r.classList.add('light-active-red'); st.innerText = "Danger Zone"; st.className = "text-[10px] font-black uppercase tracking-widest text-red-500"; }
+else if (ratio < 0.9) { y.classList.add('light-active-yellow'); st.innerText = "Warning"; st.className = "text-[10px] font-black uppercase tracking-widest text-yellow-500"; }
+else { r.classList.add('light-active-red'); st.innerText = "Critical"; st.className = "text-[10px] font-black uppercase tracking-widest text-red-500"; }
 }
 async function addExpense() {
 const amount = Number(document.getElementById('amount-input').value);
@@ -283,13 +273,10 @@ csv += `${date},${exp.amount},${currency}\n`;
 const blob = new Blob([csv], { type: 'text/csv' });
 const url = window.URL.createObjectURL(blob);
 const a = document.createElement('a');
-a.setAttribute('hidden', '');
 a.setAttribute('href', url);
-a.setAttribute('download', `NERK_Statement_${month}.csv`);
-document.body.appendChild(a);
+a.setAttribute('download', `NERK_Infrastructure_Statement_${month}.csv`);
 a.click();
-document.body.removeChild(a);
 }
 </script>
 </body>
-</html>
+</htm
