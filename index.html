@@ -6,9 +6,13 @@
 <title>NERK | KODEBLOCK Edition</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<!-- PDF GENERATION LIBRARIES -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script>
 tailwind.config = { darkMode: 'class', theme: { extend: { colors: { darkbg: '#09090b', darkcard: '#18181b' } } } }
@@ -35,8 +39,8 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s ease; over
 <h1 class="text-6xl font-black tracking-tighter uppercase">NERK</h1>
 <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">KODEBLOCK INFRASTRUCTURE</p>
 <div class="glass p-8 rounded-[3rem] space-y-5 shadow-2xl">
-<input id="auth-email" type="email" placeholder="Gmail Address" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
-<input id="auth-pass" type="password" placeholder="Password" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
+<input id="auth-email" type="email" placeholder="Gmail Address" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white border-none">
+<input id="auth-pass" type="password" placeholder="Password" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white border-none">
 <button onclick="handleAuth()" class="w-full bg-zinc-900 dark:bg-white dark:text-black text-white p-5 rounded-[1.5rem] font-black shadow-xl">SECURE ACCESS</button>
 </div>
 </div>
@@ -44,9 +48,15 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s ease; over
 <!-- MAIN DASHBOARD -->
 <section id="dashboard" class="hide p-4 md:p-6 pb-64 max-w-6xl mx-auto">
 <header class="flex justify-between items-center pt-4 mb-8">
+<div class="flex gap-4">
 <div onclick="toggleDarkMode()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center cursor-pointer shadow-sm">
 <i data-lucide="moon" class="w-5 h-5 dark:hide"></i>
 <i data-lucide="sun" class="w-5 h-5 hide dark:block text-yellow-400"></i>
+</div>
+<!-- PDF EXPORT BUTTON -->
+<button onclick="generatePDFStatement()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center cursor-pointer shadow-sm hover:bg-indigo-500/10 transition-colors">
+<i data-lucide="file-text" class="w-5 h-5 text-indigo-500"></i>
+</button>
 </div>
 <div class="text-right">
 <h2 class="text-2xl font-black tracking-tighter uppercase">NERK</h2>
@@ -58,7 +68,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s ease; over
 <div class="glass rounded-[3rem] p-8 md:p-10 shadow-2xl flex justify-between items-center relative border border-white/10">
 <div class="space-y-1">
 <p id="status-text" class="text-[9px] font-black uppercase tracking-widest text-green-500">Safe Zone</p>
-<p class="text-[10px] font-medium text-zinc-400">Infrastructure Capital Remaining</p>
+<p class="text-[10px] font-medium text-zinc-400">Capital Remaining</p>
 <h2 id="display-balance" class="text-3xl md:text-4xl font-black tracking-tighter">₦0</h2>
 </div>
 <div class="flex flex-col gap-3 bg-zinc-200/50 dark:bg-zinc-800/50 p-3 rounded-full border border-black/5">
@@ -117,6 +127,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.3s ease; over
 </div>
 </div>
 <script>
+// --- DONO CONFIG ---
 const firebaseConfig = {
 apiKey: "AIzaSyA0_1qvuG5TGiS2HM8E-lXOmL1ri0T2658",
 authDomain: "nerk-4ca89.firebaseapp.com",
@@ -161,20 +172,19 @@ const itemIn = document.getElementById('item-input'), amountIn = document.getEle
 const amount = parseFloat(amountIn.value);
 if (!itemIn.value || isNaN(amount)) return alert("Invalid Data");
 const newExpense = {
-id: Date.now().toString(), // Unique ID for deletion
+id: Date.now().toString(),
 item: itemIn.value,
 amount,
 date: new Date().toISOString()
 };
-userData.expenses = [newExpense, ...userData.expenses];
+userData.expenses = [newExpense, ...(userData.expenses || [])];
 itemIn.value = ''; amountIn.value = '';
 closeEntryModal();
 updateUI();
 await db.collection("infrastructure").doc(user.uid).set(userData);
 }
-// THE ERASURE PROTOCOL
 async function deleteExpense(id) {
-if(!confirm("Erase this entry from the ledger?")) return;
+if(!confirm("Erase entry?")) return;
 userData.expenses = userData.expenses.filter(e => e.id !== id);
 updateUI();
 await db.collection("infrastructure").doc(user.uid).set(userData);
@@ -186,6 +196,51 @@ userData.budget = Number(val);
 updateUI();
 await db.collection("infrastructure").doc(user.uid).set(userData);
 }
+}
+// THE PDF PROTOCOL
+async function generatePDFStatement() {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+const now = new Date();
+const monthYear = document.getElementById('cal-month-title').innerText;
+// Header Branding
+doc.setFontSize(22);
+doc.setTextColor(0, 0, 0);
+doc.text("KODEBLOCK INFRASTRUCTURE", 14, 20);
+doc.setFontSize(10);
+doc.setTextColor(100);
+doc.text("Temporal Financial Statement", 14, 28);
+doc.text(`Issuing Date: ${now.toLocaleDateString()}`, 14, 33);
+doc.text(`Account ID: ${user.email}`, 14, 38);
+// Summary Section
+const currentExpenses = (userData.expenses || []).filter(e => {
+const d = new Date(e.date);
+return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+});
+const totalSpent = currentExpenses.reduce((sum, e) => sum + e.amount, 0);
+const balance = userData.budget - totalSpent;
+doc.setFillColor(245, 245, 245);
+doc.rect(14, 45, 182, 30, 'F');
+doc.setFont("helvetica", "bold");
+doc.setTextColor(0, 0, 0);
+doc.text(`Monthly Limit: NGN ${userData.budget.toLocaleString()}`, 20, 55);
+doc.text(`Total Burn: NGN ${totalSpent.toLocaleString()}`, 20, 62);
+doc.text(`Capital Remaining: NGN ${balance.toLocaleString()}`, 20, 69);
+// Ledger Table
+const tableData = currentExpenses.map(e => [
+new Date(e.date).toLocaleDateString(),
+e.item.toUpperCase(),
+`NGN ${e.amount.toLocaleString()}`
+]);
+doc.autoTable({
+startY: 85,
+head: [['Date', 'Description', 'Amount']],
+body: tableData,
+theme: 'grid',
+headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
+styles: { font: "helvetica", fontSize: 9 }
+});
+doc.save(`KodeBlock_Statement_${monthYear.replace(' ', '_')}.pdf`);
 }
 function updateUI() {
 const now = new Date();
@@ -203,16 +258,11 @@ const list = document.getElementById('expense-list');
 list.innerHTML = '';
 currentExpenses.forEach(e => {
 const div = document.createElement('div');
-div.className = "glass p-6 rounded-[2rem] flex justify-between items-center animate-fade-in border border-white/5";
+div.className = "glass p-6 rounded-[2rem] flex justify-between items-center animate-fade-in border border-white/5 mb-3";
 div.innerHTML = `
 <div class="flex items-center gap-4">
-<button onclick="deleteExpense('${e.id}')" class="p-2 hover:text-rose-500 opacity-30 hover:opacity-100 transition-all">
-<i data-lucide="trash-2" class="w-4 h-4"></i>
-</button>
-<div>
-<p class="text-[10px] font-black uppercase text-zinc-400">Burn Log</p>
-<p class="text-sm font-bold">${e.item}</p>
-</div>
+<button onclick="deleteExpense('${e.id}')" class="p-2 hover:text-rose-500 opacity-30 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+<div><p class="text-[10px] font-black uppercase text-zinc-400">Burn Log</p><p class="text-sm font-bold text-black dark:text-white">${e.item}</p></div>
 </div>
 <span class="font-black text-rose-500">-₦${e.amount.toLocaleString()}</span>
 `;
