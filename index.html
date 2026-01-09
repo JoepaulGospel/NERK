@@ -27,17 +27,17 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 .hide { display: none !important; }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; border-radius: 10px; }
-.day-active { background: #22c55e; color: white; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
-.modal-overlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); transition: all 0.3s ease; }
+.day-active { background: #22c55e !important; color: white !important; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+.modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); transition: all 0.3s ease; }
 </style>
 </head>
 <body class="bg-[#f4f4f7] dark:bg-darkbg text-zinc-900 dark:text-zinc-100 min-h-screen">
 <!-- AUTH SCREEN -->
 <section id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
-<div class="w-full max-w-md space-y-12 text-center text-slate-900 dark:text-white">
+<div class="w-full max-w-md space-y-12 text-center">
 <div class="space-y-2">
 <h1 class="text-6xl font-black tracking-tighter uppercase">NERK</h1>
-<p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">KODEBLOCK INFRASTRUCTURE</p>
+<p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">NERK FROM KODEBLOCK</p>
 </div>
 <div class="glass p-8 rounded-[3rem] space-y-5 shadow-2xl">
 <input id="auth-email" type="email" placeholder="Gmail Address" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
@@ -62,7 +62,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
 <div class="space-y-6">
 <!-- STATUS CARD -->
-<div class="glass rounded-[3rem] p-8 md:p-10 shadow-2xl flex justify-between items-center relative">
+<div class="glass rounded-[3rem] p-8 md:p-10 shadow-2xl flex justify-between items-center relative border border-white/10">
 <div class="space-y-1">
 <p id="status-text" class="text-[9px] font-black uppercase tracking-widest text-green-500">Safe Zone</p>
 <p class="text-[10px] font-medium text-zinc-400">Capital Remaining</p>
@@ -86,11 +86,13 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </div>
 <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 pt-4">Outflow Log</h3>
-<div id="expense-list" class="space-y-3"></div>
+<div id="expense-list" class="space-y-3">
+<!-- ITEMS WILL APPEAR HERE -->
+</div>
 </div>
 <div class="lg:block">
-<div class="glass rounded-[2rem] p-6 pt-10 sticky top-6">
-<h3 id="calendar-month-name" class="text-[12px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-300 mb-6 text-center">JANUARY 2026</h3>
+<div class="glass rounded-[2rem] p-6 pt-10 sticky top-6 shadow-xl">
+<h3 id="cal-month-title" class="text-[12px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-300 mb-6 text-center">MONTH 2026</h3>
 <div class="calendar-grid text-[8px] font-black text-zinc-400 mb-2 uppercase text-center">
 <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
 </div>
@@ -99,13 +101,14 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </div>
 </div>
-<button onclick="openEntryModal()" class="fixed bottom-10 right-10 w-20 h-20 bg-zinc-900 dark:bg-white dark:text-black text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 z-40">
+<!-- THE PLUS BUTTON -->
+<button onclick="openEntryModal()" class="fixed bottom-10 right-10 w-20 h-20 bg-zinc-900 dark:bg-white dark:text-black text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 z-40">
 <i data-lucide="plus" class="w-10 h-10"></i>
 </button>
 </section>
 <!-- ENTRY MODAL -->
 <div id="entry-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 modal-overlay hide">
-<div class="glass w-full max-w-sm rounded-[3rem] p-10 shadow-2xl border border-white/20 animate-fade-in text-slate-900 dark:text-white">
+<div class="glass w-full max-w-sm rounded-[3rem] p-10 shadow-2xl border border-white/20 animate-fade-in text-black dark:text-white">
 <div class="flex justify-between items-center mb-8">
 <h2 class="text-2xl font-black tracking-tighter uppercase">LOG BURN</h2>
 <button onclick="closeEntryModal()"><i data-lucide="x" class="w-6 h-6 text-zinc-400"></i></button>
@@ -124,7 +127,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </div>
 <script>
-// --- CONFIG ---
+// --- DONO CONFIG ---
 const firebaseConfig = {
 apiKey: "AIzaSyA0_1qvuG5TGiS2HM8E-lXOmL1ri0T2658",
 authDomain: "nerk-4ca89.firebaseapp.com",
@@ -157,12 +160,11 @@ else await auth.signInWithEmailAndPassword(email, pass);
 }
 function openEntryModal() { document.getElementById('entry-modal').classList.remove('hide'); }
 function closeEntryModal() { document.getElementById('entry-modal').classList.add('hide'); }
-// --- REPAIRED SUBMIT PROTOCOL ---
 async function handleSubmitExpense() {
 const itemIn = document.getElementById('item-input'), amountIn = document.getElementById('amount-input');
 const item = itemIn.value.trim(), amount = parseFloat(amountIn.value);
 const btn = document.getElementById('submit-btn');
-if (!item || isNaN(amount) || amount <= 0) return alert("Required: Item Name and valid Amount.");
+if (!item || isNaN(amount) || amount <= 0) return alert("System requires valid item and amount.");
 btn.disabled = true; btn.innerText = "COMMITTING...";
 try {
 await db.collection("expenses").add({
@@ -173,7 +175,7 @@ createdAt: firebase.firestore.Timestamp.now()
 });
 itemIn.value = ''; amountIn.value = '';
 closeEntryModal();
-} catch (e) { alert("Sync Error: " + e.message); }
+} catch (e) { alert("Infrastructure Error: " + e.message); }
 finally { btn.disabled = false; btn.innerText = "COMMIT TO LEDGER"; }
 }
 function init() { fetchBudget(); fetchExpenses(); renderCalendar(); lucide.createIcons(); }
@@ -183,19 +185,18 @@ budget = doc.exists ? Number(doc.data().amount) : 0;
 updateUI();
 }
 async function setNewBudget() {
-const val = prompt("Set Monthly Limit:", budget);
+const val = prompt("Set Monthly Capital Limit:", budget);
 if (val !== null && !isNaN(val)) {
 budget = Number(val);
 await db.collection("budgets").doc(user.uid).set({ amount: budget });
 updateUI();
 }
 }
-// --- REPAIRED FETCH & MATH PROTOCOL ---
+// --- REPAIRED FETCH PROTOCOL ---
 function fetchExpenses() {
 const now = new Date();
 const start = new Date(now.getFullYear(), now.getMonth(), 1);
 const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-// Sort logic handled in JS to avoid index requirement for now
 db.collection("expenses")
 .where("uid", "==", user.uid)
 .where("createdAt", ">=", start)
@@ -206,15 +207,20 @@ list.innerHTML = '';
 let runningTotal = 0;
 let docs = [];
 snap.forEach(doc => docs.push(doc.data()));
-docs.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+// Sort safety: handle null timestamps during latency
+docs.sort((a, b) => {
+const timeA = a.createdAt ? a.createdAt.toMillis() : Date.now();
+const timeB = b.createdAt ? b.createdAt.toMillis() : Date.now();
+return timeB - timeA;
+});
 docs.forEach(d => {
 runningTotal += Number(d.amount);
 const div = document.createElement('div');
-div.className = "glass p-6 rounded-[2rem] flex justify-between items-center shadow-sm animate-fade-in";
+div.className = "glass p-6 rounded-[2rem] flex justify-between items-center shadow-sm border border-white/5";
 div.innerHTML = `
 <div class="space-y-1">
 <p class="text-[10px] font-black uppercase text-zinc-400">Burn Log</p>
-<p class="text-sm font-bold">${d.item}</p>
+<p class="text-sm font-bold text-black dark:text-white">${d.item}</p>
 </div>
 <span class="font-black text-rose-500">-₦${d.amount.toLocaleString()}</span>
 `;
@@ -231,15 +237,15 @@ document.getElementById('display-balance').innerText = `₦${balance.toLocaleStr
 document.getElementById('display-spent').innerText = `₦${totalSpent.toLocaleString()}`;
 document.getElementById('display-budget').innerText = `₦${budget.toLocaleString()}`;
 const r = document.getElementById('light-red'), y = document.getElementById('light-yellow'), g = document.getElementById('light-green');
-[r, y, g].forEach(l => l.className = "traffic-dot");
+[r, y, g].forEach(l => l.classList.remove('light-active-green', 'light-active-yellow', 'light-active-red'));
 if (ratio < 0.5) g.classList.add('light-active-green');
 else if (ratio < 0.9) y.classList.add('light-active-yellow');
 else r.classList.add('light-active-red');
 }
 function renderCalendar() {
 const now = new Date();
-const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-document.getElementById('calendar-month-name').innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+document.getElementById('cal-month-title').innerText = `${months[now.getMonth()]} ${now.getFullYear()}`;
 const startDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
 const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 const calDays = document.getElementById('calendar-days');
