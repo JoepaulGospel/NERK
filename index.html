@@ -10,6 +10,12 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+darkMode: 'class',
+theme: { extend: { colors: { darkbg: '#09090b', darkcard: '#18181b' } } }
+}
+</script>
 <style>
 body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s ease; overflow-x: hidden; }
 .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); }
@@ -28,10 +34,10 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <body class="bg-[#f4f4f7] dark:bg-darkbg text-zinc-900 dark:text-zinc-100 min-h-screen">
 <!-- AUTH SCREEN -->
 <section id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
-<div class="w-full max-w-md space-y-12 text-center">
+<div class="w-full max-w-md space-y-12 text-center text-slate-900 dark:text-white">
 <div class="space-y-2">
-<h1 class="text-6xl font-black tracking-tighter">NERK</h1>
-<p class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">NERK FROM KODEBLOCK</p>
+<h1 class="text-6xl font-black tracking-tighter uppercase">NERK</h1>
+<p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">KODEBLOCK INFRASTRUCTURE</p>
 </div>
 <div class="glass p-8 rounded-[3rem] space-y-5 shadow-2xl">
 <input id="auth-email" type="email" placeholder="Gmail Address" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm">
@@ -49,7 +55,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <i data-lucide="sun" class="w-5 h-5 hide dark:block text-yellow-400"></i>
 </div>
 <div class="text-right">
-<h2 class="text-2xl font-black tracking-tighter">NERK</h2>
+<h2 class="text-2xl font-black tracking-tighter uppercase">NERK</h2>
 <p class="text-[8px] font-black uppercase tracking-widest text-zinc-400">NERK FROM KODEBLOCK</p>
 </div>
 </header>
@@ -79,34 +85,39 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <p id="display-spent" class="text-sm font-bold">₦0</p>
 </div>
 </div>
-<div id="expense-list" class="space-y-3"></div>
+<h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 pt-4">Outflow Log</h3>
+<div id="expense-list" class="space-y-3">
+<!-- List items appear here -->
+</div>
 </div>
 <div class="lg:block">
 <div class="glass rounded-[2rem] p-6 pt-10 sticky top-6">
 <h3 class="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-6 text-center">Temporal Index</h3>
 <div id="calendar-days" class="calendar-grid"></div>
+<button onclick="auth.signOut()" class="w-full mt-10 p-4 rounded-2xl bg-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-widest">Sign Out</button>
 </div>
 </div>
 </div>
-<!-- THE PLUS BUTTON (LEDGER STYLE) -->
+<!-- THE PLUS BUTTON -->
 <button onclick="openEntryModal()" class="fixed bottom-10 right-10 w-20 h-20 bg-zinc-900 dark:bg-white dark:text-black text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-40">
 <i data-lucide="plus" class="w-10 h-10"></i>
 </button>
 </section>
-<!-- THE ENTRY MODAL (LEDGER STYLE) -->
+<!-- THE ENTRY MODAL (LEDGER FORMAT) -->
 <div id="entry-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 modal-overlay hide">
-<div class="glass w-full max-w-sm rounded-[3rem] p-10 shadow-2xl border-white/50 animate-fade-in">
+<div class="glass w-full max-w-sm rounded-[3rem] p-10 shadow-2xl border border-white/20 animate-fade-in">
 <div class="flex justify-between items-center mb-8">
 <h2 class="text-2xl font-black tracking-tighter">LOG BURN</h2>
 <button onclick="closeEntryModal()"><i data-lucide="x" class="w-6 h-6 text-zinc-400"></i></button>
 </div>
 <div class="space-y-6">
 <div>
-<label class="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2 block">Amount</label>
-<div class="flex items-center gap-3 bg-zinc-100/50 dark:bg-zinc-800/50 p-5 rounded-[1.5rem]">
-<span class="font-black text-zinc-400">₦</span>
-<input id="amount-input" type="number" placeholder="0.00" class="bg-transparent w-full outline-none font-bold text-xl">
+<label class="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-2 block">Item Name</label>
+<input id="item-input" type="text" placeholder="e.g. Infrastructure" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm">
 </div>
+<div>
+<label class="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-2 block">Amount (₦)</label>
+<input id="amount-input" type="number" placeholder="0.00" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-xl">
 </div>
 <button onclick="handleSubmitExpense()" id="submit-btn" class="w-full bg-zinc-900 dark:bg-white dark:text-black text-white p-5 rounded-[1.5rem] font-black shadow-xl">COMMIT TO LEDGER</button>
 </div>
@@ -145,29 +156,27 @@ if (type === 'signup') await auth.createUserWithEmailAndPassword(email, pass);
 else await auth.signInWithEmailAndPassword(email, pass);
 } catch (e) { alert(e.message); }
 }
-// --- MODAL PROTOCOL (LEDGER STYLE) ---
-function openEntryModal() {
-document.getElementById('entry-modal').classList.remove('hide');
-document.getElementById('amount-input').focus();
-}
-function closeEntryModal() {
-document.getElementById('entry-modal').classList.add('hide');
-}
-// --- SUBMIT PROTOCOL (LEDGER STYLE) ---
+function openEntryModal() { document.getElementById('entry-modal').classList.remove('hide'); }
+function closeEntryModal() { document.getElementById('entry-modal').classList.add('hide'); }
+// --- THE + BUTTON LOGIC (REPAIRED) ---
 async function handleSubmitExpense() {
-const input = document.getElementById('amount-input');
-const amount = parseFloat(input.value);
+const itemInput = document.getElementById('item-input');
+const amountInput = document.getElementById('amount-input');
+const item = itemInput.value.trim();
+const amount = parseFloat(amountInput.value);
 const btn = document.getElementById('submit-btn');
-if (!amount || amount <= 0) return alert("Enter valid amount");
+if (!item || !amount || amount <= 0) return alert("System requires Item Name and valid Amount.");
 btn.disabled = true;
 btn.innerText = "COMMITTING...";
 try {
 await db.collection("expenses").add({
+item: item,
 amount: amount,
 uid: user.uid,
 createdAt: firebase.firestore.Timestamp.now()
 });
-input.value = '';
+itemInput.value = '';
+amountInput.value = '';
 closeEntryModal();
 } catch (e) {
 alert("Sync Error: " + e.message);
@@ -204,15 +213,26 @@ db.collection("expenses")
 .where("uid", "==", user.uid)
 .where("createdAt", ">=", start)
 .where("createdAt", "<=", end)
+.orderBy("createdAt", "desc")
 .onSnapshot(snap => {
 const list = document.getElementById('expense-list');
 list.innerHTML = ''; totalSpent = 0;
+if (snap.empty) {
+list.innerHTML = '<p class="text-center py-10 text-xs font-bold opacity-20 uppercase tracking-widest">No outflow detected</p>';
+}
 snap.forEach(doc => {
-const d = doc.data(); totalSpent += Number(d.amount);
-const item = document.createElement('div');
-item.className = "glass p-6 rounded-[2rem] flex justify-between items-center shadow-sm";
-item.innerHTML = `<div class="text-[10px] font-black uppercase text-zinc-400">Outflow Log</div><span class="font-black">₦${d.amount.toLocaleString()}</span>`;
-list.appendChild(item);
+const d = doc.data();
+totalSpent += Number(d.amount);
+const itemDiv = document.createElement('div');
+itemDiv.className = "glass p-6 rounded-[2rem] flex justify-between items-center shadow-sm border border-white/10";
+itemDiv.innerHTML = `
+<div class="space-y-1">
+<p class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Burn Log</p>
+<p class="text-sm font-bold">${d.item || 'Infrastructure'}</p>
+</div>
+<span class="font-black text-lg text-rose-500">-₦${d.amount.toLocaleString()}</span>
+`;
+list.appendChild(itemDiv);
 });
 updateUI();
 });
