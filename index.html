@@ -40,8 +40,8 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">KODEBLOCK INFRASTRUCTURE</p>
 </div>
 <div class="glass p-8 rounded-[3rem] space-y-5 shadow-2xl">
-<input id="auth-email" type="email" placeholder="Gmail Address" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm">
-<input id="auth-pass" type="password" placeholder="Password" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm">
+<input id="auth-email" type="email" placeholder="Gmail Address" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
+<input id="auth-pass" type="password" placeholder="Password" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
 <button onclick="handleAuth('login')" class="w-full bg-zinc-900 dark:bg-white dark:text-black text-white p-5 rounded-[1.5rem] font-black shadow-xl">LOG IN</button>
 <button onclick="handleAuth('signup')" class="text-[10px] font-black text-zinc-400 hover:text-indigo-500 uppercase tracking-[0.2em] pt-2">Register Infrastructure</button>
 </div>
@@ -86,45 +86,45 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </div>
 <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 pt-4">Outflow Log</h3>
-<div id="expense-list" class="space-y-3">
-<!-- List items appear here -->
-</div>
+<div id="expense-list" class="space-y-3"></div>
 </div>
 <div class="lg:block">
 <div class="glass rounded-[2rem] p-6 pt-10 sticky top-6">
-<h3 class="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-6 text-center">Temporal Index</h3>
+<h3 id="calendar-month-name" class="text-[12px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-300 mb-6 text-center">JANUARY 2026</h3>
+<div class="calendar-grid text-[8px] font-black text-zinc-400 mb-2 uppercase text-center">
+<span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+</div>
 <div id="calendar-days" class="calendar-grid"></div>
 <button onclick="auth.signOut()" class="w-full mt-10 p-4 rounded-2xl bg-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-widest">Sign Out</button>
 </div>
 </div>
 </div>
-<!-- THE PLUS BUTTON -->
-<button onclick="openEntryModal()" class="fixed bottom-10 right-10 w-20 h-20 bg-zinc-900 dark:bg-white dark:text-black text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-40">
+<button onclick="openEntryModal()" class="fixed bottom-10 right-10 w-20 h-20 bg-zinc-900 dark:bg-white dark:text-black text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 z-40">
 <i data-lucide="plus" class="w-10 h-10"></i>
 </button>
 </section>
-<!-- THE ENTRY MODAL (LEDGER FORMAT) -->
+<!-- ENTRY MODAL -->
 <div id="entry-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 modal-overlay hide">
-<div class="glass w-full max-w-sm rounded-[3rem] p-10 shadow-2xl border border-white/20 animate-fade-in">
+<div class="glass w-full max-w-sm rounded-[3rem] p-10 shadow-2xl border border-white/20 animate-fade-in text-slate-900 dark:text-white">
 <div class="flex justify-between items-center mb-8">
-<h2 class="text-2xl font-black tracking-tighter">LOG BURN</h2>
+<h2 class="text-2xl font-black tracking-tighter uppercase">LOG BURN</h2>
 <button onclick="closeEntryModal()"><i data-lucide="x" class="w-6 h-6 text-zinc-400"></i></button>
 </div>
 <div class="space-y-6">
 <div>
 <label class="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-2 block">Item Name</label>
-<input id="item-input" type="text" placeholder="e.g. Infrastructure" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm">
+<input id="item-input" type="text" placeholder="e.g. Infrastructure" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-sm text-black dark:text-white">
 </div>
 <div>
 <label class="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-2 block">Amount (₦)</label>
-<input id="amount-input" type="number" placeholder="0.00" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-xl">
+<input id="amount-input" type="number" placeholder="0.00" class="w-full p-5 rounded-[1.5rem] bg-zinc-100/50 dark:bg-zinc-800/50 outline-none font-bold text-xl text-black dark:text-white">
 </div>
 <button onclick="handleSubmitExpense()" id="submit-btn" class="w-full bg-zinc-900 dark:bg-white dark:text-black text-white p-5 rounded-[1.5rem] font-black shadow-xl">COMMIT TO LEDGER</button>
 </div>
 </div>
 </div>
 <script>
-// --- DONO CONFIGURATION ---
+// --- CONFIG ---
 const firebaseConfig = {
 apiKey: "AIzaSyA0_1qvuG5TGiS2HM8E-lXOmL1ri0T2658",
 authDomain: "nerk-4ca89.firebaseapp.com",
@@ -137,7 +137,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 let user = null, budget = 0, totalSpent = 0;
-// --- AUTH PROTOCOL ---
 auth.onAuthStateChanged(u => {
 user = u;
 if (u) {
@@ -158,16 +157,13 @@ else await auth.signInWithEmailAndPassword(email, pass);
 }
 function openEntryModal() { document.getElementById('entry-modal').classList.remove('hide'); }
 function closeEntryModal() { document.getElementById('entry-modal').classList.add('hide'); }
-// --- THE + BUTTON LOGIC (REPAIRED) ---
+// --- REPAIRED SUBMIT PROTOCOL ---
 async function handleSubmitExpense() {
-const itemInput = document.getElementById('item-input');
-const amountInput = document.getElementById('amount-input');
-const item = itemInput.value.trim();
-const amount = parseFloat(amountInput.value);
+const itemIn = document.getElementById('item-input'), amountIn = document.getElementById('amount-input');
+const item = itemIn.value.trim(), amount = parseFloat(amountIn.value);
 const btn = document.getElementById('submit-btn');
-if (!item || !amount || amount <= 0) return alert("System requires Item Name and valid Amount.");
-btn.disabled = true;
-btn.innerText = "COMMITTING...";
+if (!item || isNaN(amount) || amount <= 0) return alert("Required: Item Name and valid Amount.");
+btn.disabled = true; btn.innerText = "COMMITTING...";
 try {
 await db.collection("expenses").add({
 item: item,
@@ -175,23 +171,12 @@ amount: amount,
 uid: user.uid,
 createdAt: firebase.firestore.Timestamp.now()
 });
-itemInput.value = '';
-amountInput.value = '';
+itemIn.value = ''; amountIn.value = '';
 closeEntryModal();
-} catch (e) {
-alert("Sync Error: " + e.message);
-} finally {
-btn.disabled = false;
-btn.innerText = "COMMIT TO LEDGER";
+} catch (e) { alert("Sync Error: " + e.message); }
+finally { btn.disabled = false; btn.innerText = "COMMIT TO LEDGER"; }
 }
-}
-// --- CORE SYSTEMS ---
-function init() {
-fetchBudget();
-fetchExpenses();
-renderCalendar();
-lucide.createIcons();
-}
+function init() { fetchBudget(); fetchExpenses(); renderCalendar(); lucide.createIcons(); }
 async function fetchBudget() {
 const doc = await db.collection("budgets").doc(user.uid).get();
 budget = doc.exists ? Number(doc.data().amount) : 0;
@@ -205,35 +190,37 @@ await db.collection("budgets").doc(user.uid).set({ amount: budget });
 updateUI();
 }
 }
+// --- REPAIRED FETCH & MATH PROTOCOL ---
 function fetchExpenses() {
 const now = new Date();
 const start = new Date(now.getFullYear(), now.getMonth(), 1);
 const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+// Sort logic handled in JS to avoid index requirement for now
 db.collection("expenses")
 .where("uid", "==", user.uid)
 .where("createdAt", ">=", start)
 .where("createdAt", "<=", end)
-.orderBy("createdAt", "desc")
 .onSnapshot(snap => {
 const list = document.getElementById('expense-list');
-list.innerHTML = ''; totalSpent = 0;
-if (snap.empty) {
-list.innerHTML = '<p class="text-center py-10 text-xs font-bold opacity-20 uppercase tracking-widest">No outflow detected</p>';
-}
-snap.forEach(doc => {
-const d = doc.data();
-totalSpent += Number(d.amount);
-const itemDiv = document.createElement('div');
-itemDiv.className = "glass p-6 rounded-[2rem] flex justify-between items-center shadow-sm border border-white/10";
-itemDiv.innerHTML = `
+list.innerHTML = '';
+let runningTotal = 0;
+let docs = [];
+snap.forEach(doc => docs.push(doc.data()));
+docs.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+docs.forEach(d => {
+runningTotal += Number(d.amount);
+const div = document.createElement('div');
+div.className = "glass p-6 rounded-[2rem] flex justify-between items-center shadow-sm animate-fade-in";
+div.innerHTML = `
 <div class="space-y-1">
-<p class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Burn Log</p>
-<p class="text-sm font-bold">${d.item || 'Infrastructure'}</p>
+<p class="text-[10px] font-black uppercase text-zinc-400">Burn Log</p>
+<p class="text-sm font-bold">${d.item}</p>
 </div>
-<span class="font-black text-lg text-rose-500">-₦${d.amount.toLocaleString()}</span>
+<span class="font-black text-rose-500">-₦${d.amount.toLocaleString()}</span>
 `;
-list.appendChild(itemDiv);
+list.appendChild(div);
 });
+totalSpent = runningTotal;
 updateUI();
 });
 }
@@ -244,15 +231,20 @@ document.getElementById('display-balance').innerText = `₦${balance.toLocaleStr
 document.getElementById('display-spent').innerText = `₦${totalSpent.toLocaleString()}`;
 document.getElementById('display-budget').innerText = `₦${budget.toLocaleString()}`;
 const r = document.getElementById('light-red'), y = document.getElementById('light-yellow'), g = document.getElementById('light-green');
-[r, y, g].forEach(l => l.classList.remove('light-active-green', 'light-active-yellow', 'light-active-red'));
+[r, y, g].forEach(l => l.className = "traffic-dot");
 if (ratio < 0.5) g.classList.add('light-active-green');
 else if (ratio < 0.9) y.classList.add('light-active-yellow');
 else r.classList.add('light-active-red');
 }
 function renderCalendar() {
-const now = new Date(), lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+const now = new Date();
+const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+document.getElementById('calendar-month-name').innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+const startDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 const calDays = document.getElementById('calendar-days');
 calDays.innerHTML = '';
+for (let i = 0; i < startDay; i++) calDays.innerHTML += '<div></div>';
 for (let day = 1; day <= lastDay; day++) {
 const isToday = now.getDate() === day;
 calDays.innerHTML += `<div class="calendar-day ${isToday ? 'day-active' : 'bg-zinc-100/50 dark:bg-zinc-800/50'}">${day}</div>`;
