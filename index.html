@@ -47,7 +47,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </div>
 </section>
-<!-- MAIN DASHBOARD -->
+<!-- DASHBOARD -->
 <section id="dashboard" class="hide p-4 md:p-6 pb-64 max-w-6xl mx-auto">
 <header class="flex justify-between items-center pt-4 mb-8">
 <div onclick="toggleDarkMode()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center cursor-pointer shadow-sm">
@@ -86,13 +86,11 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </div>
 <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 pt-4">Outflow Log</h3>
-<div id="expense-list" class="space-y-3">
-<!-- ITEMS WILL APPEAR HERE -->
-</div>
+<div id="expense-list" class="space-y-3"></div>
 </div>
 <div class="lg:block">
 <div class="glass rounded-[2rem] p-6 pt-10 sticky top-6 shadow-xl">
-<h3 id="cal-month-title" class="text-[12px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-300 mb-6 text-center">MONTH 2026</h3>
+<h3 id="cal-month-title" class="text-[14px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-300 mb-6 text-center">MONTH 2026</h3>
 <div class="calendar-grid text-[8px] font-black text-zinc-400 mb-2 uppercase text-center">
 <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
 </div>
@@ -101,7 +99,6 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </div>
 </div>
-<!-- THE PLUS BUTTON -->
 <button onclick="openEntryModal()" class="fixed bottom-10 right-10 w-20 h-20 bg-zinc-900 dark:bg-white dark:text-black text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 z-40">
 <i data-lucide="plus" class="w-10 h-10"></i>
 </button>
@@ -127,7 +124,6 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s
 </div>
 </div>
 <script>
-// --- DONO CONFIG ---
 const firebaseConfig = {
 apiKey: "AIzaSyA0_1qvuG5TGiS2HM8E-lXOmL1ri0T2658",
 authDomain: "nerk-4ca89.firebaseapp.com",
@@ -164,7 +160,7 @@ async function handleSubmitExpense() {
 const itemIn = document.getElementById('item-input'), amountIn = document.getElementById('amount-input');
 const item = itemIn.value.trim(), amount = parseFloat(amountIn.value);
 const btn = document.getElementById('submit-btn');
-if (!item || isNaN(amount) || amount <= 0) return alert("System requires valid item and amount.");
+if (!item || isNaN(amount) || amount <= 0) return alert("Required: Item Name and Amount.");
 btn.disabled = true; btn.innerText = "COMMITTING...";
 try {
 await db.collection("expenses").add({
@@ -192,31 +188,37 @@ await db.collection("budgets").doc(user.uid).set({ amount: budget });
 updateUI();
 }
 }
-// --- REPAIRED FETCH PROTOCOL ---
+// --- DONO OVERHAUL: Internal Filtering Protocol ---
 function fetchExpenses() {
 const now = new Date();
-const start = new Date(now.getFullYear(), now.getMonth(), 1);
-const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+const currentMonth = now.getMonth();
+const currentYear = now.getFullYear();
+// Fetch ALL for user, filter locally to avoid indexing/timezone issues
 db.collection("expenses")
 .where("uid", "==", user.uid)
-.where("createdAt", ">=", start)
-.where("createdAt", "<=", end)
 .onSnapshot(snap => {
 const list = document.getElementById('expense-list');
 list.innerHTML = '';
 let runningTotal = 0;
 let docs = [];
-snap.forEach(doc => docs.push(doc.data()));
-// Sort safety: handle null timestamps during latency
+snap.forEach(doc => {
+const data = doc.data();
+const date = data.createdAt ? data.createdAt.toDate() : new Date();
+// Only show items for THIS month
+if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+docs.push(data);
+}
+});
+// Sort: Newest first
 docs.sort((a, b) => {
-const timeA = a.createdAt ? a.createdAt.toMillis() : Date.now();
-const timeB = b.createdAt ? b.createdAt.toMillis() : Date.now();
-return timeB - timeA;
+const tA = a.createdAt ? a.createdAt.toMillis() : Date.now();
+const tB = b.createdAt ? b.createdAt.toMillis() : Date.now();
+return tB - tA;
 });
 docs.forEach(d => {
 runningTotal += Number(d.amount);
 const div = document.createElement('div');
-div.className = "glass p-6 rounded-[2rem] flex justify-between items-center shadow-sm border border-white/5";
+div.className = "glass p-6 rounded-[2rem] flex justify-between items-center shadow-sm border border-white/5 animate-fade-in";
 div.innerHTML = `
 <div class="space-y-1">
 <p class="text-[10px] font-black uppercase text-zinc-400">Burn Log</p>
@@ -237,7 +239,7 @@ document.getElementById('display-balance').innerText = `₦${balance.toLocaleStr
 document.getElementById('display-spent').innerText = `₦${totalSpent.toLocaleString()}`;
 document.getElementById('display-budget').innerText = `₦${budget.toLocaleString()}`;
 const r = document.getElementById('light-red'), y = document.getElementById('light-yellow'), g = document.getElementById('light-green');
-[r, y, g].forEach(l => l.classList.remove('light-active-green', 'light-active-yellow', 'light-active-red'));
+[r, y, g].forEach(l => l.className = "traffic-dot");
 if (ratio < 0.5) g.classList.add('light-active-green');
 else if (ratio < 0.9) y.classList.add('light-active-yellow');
 else r.classList.add('light-active-red');
@@ -252,7 +254,7 @@ const calDays = document.getElementById('calendar-days');
 calDays.innerHTML = '';
 for (let i = 0; i < startDay; i++) calDays.innerHTML += '<div></div>';
 for (let day = 1; day <= lastDay; day++) {
-const isToday = now.getDate() === day;
+const isToday = new Date().getDate() === day && new Date().getMonth() === now.getMonth();
 calDays.innerHTML += `<div class="calendar-day ${isToday ? 'day-active' : 'bg-zinc-100/50 dark:bg-zinc-800/50'}">${day}</div>`;
 }
 }
